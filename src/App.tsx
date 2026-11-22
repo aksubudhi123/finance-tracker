@@ -2,6 +2,9 @@ import { useState } from 'react'
 import Home from './screens/Home'
 import Placeholder from './screens/Placeholder'
 import More from './screens/More'
+import Money from './screens/Money'
+import Budgets from './screens/Budgets'
+import Toast from './components/Toast'
 
 export type Tab = 'home' | 'money' | 'budgets' | 'loans' | 'more'
 
@@ -17,16 +20,10 @@ export default function App() {
   const [tab, setTab] = useState<Tab>('home')
   return (
     <div className="app">
-      <main className="content">
+      <main className="content" key={tab}>
         {tab === 'home' && <Home go={setTab} />}
-        {tab === 'money' && (
-          <Placeholder title="Income & expenses" step={2}
-            text="Add income and spending in a few taps, pick a category, and import your bank statement." />
-        )}
-        {tab === 'budgets' && (
-          <Placeholder title="Budgets" step={2}
-            text="Set a monthly limit for each category and get a warning before you cross it." />
-        )}
+        {tab === 'money' && <Money />}
+        {tab === 'budgets' && <Budgets />}
         {tab === 'loans' && (
           <Placeholder title="Loans & debt-free plan" step={3}
             text="Your EMIs, prepayment plan, payment log and debt-free date, imported from your Excel planner." />
@@ -42,6 +39,7 @@ export default function App() {
           </button>
         ))}
       </nav>
+      <Toast />
     </div>
   )
 }

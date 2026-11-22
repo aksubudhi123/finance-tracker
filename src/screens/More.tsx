@@ -53,7 +53,7 @@ export default function More() {
         {msg && <p className="note" role="status">{msg}</p>}
       </section>
 
-      <p className="muted small center">Finance Tracker v0.1</p>
+      <p className="muted small center">Finance Tracker v0.2</p>
     </>
   )
 }
