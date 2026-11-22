@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import Home from './screens/Home'
-import Placeholder from './screens/Placeholder'
 import More from './screens/More'
 import Money from './screens/Money'
 import Budgets from './screens/Budgets'
+import Loans from './screens/Loans'
 import Toast from './components/Toast'
 
 export type Tab = 'home' | 'money' | 'budgets' | 'loans' | 'more'
@@ -24,10 +24,7 @@ export default function App() {
         {tab === 'home' && <Home go={setTab} />}
         {tab === 'money' && <Money />}
         {tab === 'budgets' && <Budgets />}
-        {tab === 'loans' && (
-          <Placeholder title="Loans & debt-free plan" step={3}
-            text="Your EMIs, prepayment plan, payment log and debt-free date, imported from your Excel planner." />
-        )}
+        {tab === 'loans' && <Loans />}
         {tab === 'more' && <More />}
       </main>
       <nav className="tabbar" aria-label="Main">

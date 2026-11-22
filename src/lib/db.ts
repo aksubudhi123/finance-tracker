@@ -31,10 +31,19 @@ export interface Loan {
   id?: number
   name: string
   lender: string
-  outstanding: number
+  outstanding: number // at plan start, before that month's EMI
   ratePct: number // % per year, e.g. 9.97
   emi: number
   startMonth: string // YYYY-MM
+  maxPrepayPct?: number
+  prepaysPerYear?: number
+  prepayYearStart?: number
+  chargePct?: number
+  gstPct?: number
+  canCloseFull?: boolean
+  closeChargePct?: number
+  plannedMonth?: number
+  notes?: string
 }
 
 export interface LoanPayment {

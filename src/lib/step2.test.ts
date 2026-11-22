@@ -10,14 +10,14 @@ describe('statement import', () => {
       ['Date', 'Narration', 'Chq./Ref.No.', 'Value Dt', 'Withdrawal Amt.', 'Deposit Amt.', 'Closing Balance'],
       ['01/11/26', 'SALARY NOV ACME LTD', '', '01/11/26', '', '1,20,000.00', '150000'],
       ['03/11/26', 'UPI-SWIGGY-swiggy@icici', '', '03/11/26', '450.00', '', '149550'],
-      ['05/11/26', 'ACH D- BAJAJ FINANCE LTD', '', '05/11/26', '16,669.00', '', '132881'],
+      ['05/11/26', 'ACH D- BAJAJ FINANCE LTD', '', '05/11/26', '12,000.00', '', '132881'],
       ['', '***** end of statement *****']
     ]
     const r = parseStatement(rows)
     expect(r.map((x) => [x.date, x.type, x.amount, x.category])).toEqual([
       ['2026-11-01', 'income', 120000, 'Salary'],
       ['2026-11-03', 'expense', 450, 'Eating out'],
-      ['2026-11-05', 'expense', 16669, 'EMI & loans']
+      ['2026-11-05', 'expense', 12000, 'EMI & loans']
     ])
   })
 

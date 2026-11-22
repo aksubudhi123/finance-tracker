@@ -13,11 +13,11 @@ describe('summarise', () => {
         { date: '2026-10-30', type: 'expense', amount: 9999, category: 'Groceries' }
       ],
       [{ category: 'Groceries', monthlyLimit: 10000 }],
-      [{ name: 'L', lender: 'X', outstanding: 500000, ratePct: 11.1, emi: 16669, startMonth: '2026-11' }]
+      [{ name: 'L', lender: 'X', outstanding: 500000, ratePct: 11.1, emi: 12000, startMonth: '2026-11' }]
     )
     expect(s).toEqual({
       income: 100000, expense: 5500, balance: 94500,
-      budgetTotal: 10000, budgetUsed: 4000, totalDebt: 500000, totalEmi: 16669
+      budgetTotal: 10000, budgetUsed: 4000, totalDebt: 500000, totalEmi: 12000
     })
   })
 })

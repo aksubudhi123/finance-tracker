@@ -7,10 +7,12 @@ import { budgetStatus, byCategory, lastMonths, levelFor } from '../lib/budget'
 import { CategoryBars, MonthBars } from '../components/Charts'
 import TxSheet from '../components/TxSheet'
 import type { Tab } from '../App'
+import { useDebt } from '../lib/debt'
 
 export default function Home({ go }: { go: (t: Tab) => void }) {
   const month = monthKey()
   const [adding, setAdding] = useState(false)
+  const debt = useDebt()
   const months = lastMonths(month, 6)
   const data = useLiveQuery(async () => {
     const [txs, budgets, loans, cats] = await Promise.all([
@@ -69,8 +71,14 @@ export default function Home({ go }: { go: (t: Tab) => void }) {
         </button>
         <button className="card tile" onClick={() => go('loans')}>
           <p className="muted">Total debt</p>
-          <p className="strong">{s.totalDebt ? rupees(s.totalDebt) : 'No loans yet'}</p>
-          {s.totalEmi > 0 && <p className="muted small">EMIs {rupees(s.totalEmi)}/month</p>}
+          {debt?.plan ? (() => {
+            const row = debt.plan.months.find((m) => m.month === month) ?? debt.plan.months[0]
+            const owed = row ? row.loans.reduce((a, l) => a + l.opening, 0) : s.totalDebt
+            return <>
+              <p className="strong">{rupees(owed)}</p>
+              <p className="muted small">Debt-free {debt.plan.debtFreeMonth ? monthLabel(debt.plan.debtFreeMonth) : 'in 25+ yrs'}</p>
+            </>
+          })() : <p className="strong">No loans yet</p>}
         </button>
       </div>
 
@@ -96,7 +104,7 @@ export default function Home({ go }: { go: (t: Tab) => void }) {
             <li>Install the app on your phone (see More → Install)</li>
             <li>Add your salary and a few expenses with the <b>+</b> button, or import a bank statement from the Money tab</li>
             <li>Set monthly budgets in the Budgets tab</li>
-            <li>Import loans from your Excel planner <span className="tag">coming in step 3</span></li>
+            <li>Import your loans from your Excel planner in the Loans tab</li>
           </ol>
         </section>
       )}
