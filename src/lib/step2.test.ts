@@ -104,3 +104,14 @@ describe('real-world narrations', () => {
     expect([s.income, s.expense]).toEqual([0, 200])
   })
 })
+
+describe('salary credits that carry your own name', () => {
+  const own = { ownNames: ['RAVI KUMAR SHARMA'] }
+  it('are salary, not transfers', () => {
+    expect(guessCategory('RTGS CR-ICIC0000105-ACME INDIA PRIVATE LIMITED-RAVI KUMAR SHARMA-ICICR52026', 'income', own)).toBe('Salary')
+    expect(guessCategory('NEFT CR-KKBK0000958-SOME MUTUAL FUND-RAVI KUMAR SHARMA', 'income', own)).toBe('Other income')
+  })
+  it('own UPI IDs match anywhere', () => {
+    expect(guessCategory('UPI-RAVISHARMA12OKA-ravisharma1-2@okaxis-BARB0-1-UPI', 'expense', { ownNames: ['ravisharma1-2@okaxis'] })).toBe('Transfer')
+  })
+})

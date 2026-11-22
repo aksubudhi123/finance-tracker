@@ -42,9 +42,9 @@ export default function Home({ go }: { go: (t: Tab) => void }) {
 
   return (
     <>
-      <header className="page-head">
-        <p className="eyebrow">{monthLabel(month)}</p>
-        <h1>Hello 👋</h1>
+      <header className="page-head row between">
+        <div><p className="eyebrow">{monthLabel(month)}</p><h1>Hello 👋</h1></div>
+        <button className="icon-btn" aria-label="Settings, install and backup" onClick={() => go('more')}>⚙️</button>
       </header>
 
       {alerts.map((a) => (
@@ -101,7 +101,7 @@ export default function Home({ go }: { go: (t: Tab) => void }) {
         <section className="card">
           <h2>Getting started</h2>
           <ol className="steps">
-            <li>Install the app on your phone (see More → Install)</li>
+            <li>Install the app on your phone (tap ⚙️ above → Install)</li>
             <li>Add your salary and a few expenses with the <b>+</b> button, or import a bank statement from the Money tab</li>
             <li>Set monthly budgets in the Budgets tab</li>
             <li>Import your loans from your Excel planner in the Loans tab</li>

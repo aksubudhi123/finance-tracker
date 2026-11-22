@@ -4,16 +4,17 @@ import More from './screens/More'
 import Money from './screens/Money'
 import Budgets from './screens/Budgets'
 import Loans from './screens/Loans'
+import Insights from './screens/Insights'
 import Toast from './components/Toast'
 
-export type Tab = 'home' | 'money' | 'budgets' | 'loans' | 'more'
+export type Tab = 'home' | 'money' | 'budgets' | 'loans' | 'insights' | 'more'
 
 const TABS: { id: Tab; label: string; icon: string }[] = [
   { id: 'home', label: 'Home', icon: '🏠' },
   { id: 'money', label: 'Money', icon: '💸' },
   { id: 'budgets', label: 'Budgets', icon: '🎯' },
   { id: 'loans', label: 'Loans', icon: '🏦' },
-  { id: 'more', label: 'More', icon: '⚙️' }
+  { id: 'insights', label: 'Insights', icon: '💡' }
 ]
 
 export default function App() {
@@ -25,6 +26,7 @@ export default function App() {
         {tab === 'money' && <Money />}
         {tab === 'budgets' && <Budgets />}
         {tab === 'loans' && <Loans />}
+        {tab === 'insights' && <Insights go={setTab} />}
         {tab === 'more' && <More />}
       </main>
       <nav className="tabbar" aria-label="Main">

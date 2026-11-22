@@ -45,14 +45,16 @@ export function payeeOf(note: string): string {
 }
 
 export function isOwnTransfer(note: string, ownNames: string[] = []): boolean {
-  const w = words(note)
   const payee = payeeOf(note)
+  const lower = note.toLowerCase()
   return ownNames.some((n) => {
-    const k = words(n).trim()
-    if (k.length < 4) return false
-    if (w.includes(` ${k} `)) return true
-    // UPI cuts names to ~20 characters, e.g. "ABHIJIT KUMAR SUBUDH"
-    return payee.length >= 12 && k.startsWith(payee)
+    const raw = n.trim().toLowerCase()
+    if (raw.length < 4) return false
+    // UPI IDs / account numbers: look anywhere in the narration
+    if (/[@0-9]/.test(raw)) return lower.includes(raw)
+    // Names: only the other party counts (salary credits also carry your name as the receiver)
+    const k = words(raw).trim()
+    return payee === k || words(payee).includes(` ${k} `) || (payee.length >= 12 && k.startsWith(payee))
   })
 }
 
@@ -63,7 +65,12 @@ export function guessCategory(note: string, type: TxType, ctx: CategorizeContext
   if (type === 'expense') {
     if (/BILLPAY|CREDIT CARD|\bCC\b.*PAY/i.test(note) && /\d{4,6}X+\d{4}/i.test(note)) return 'Credit card bill'
     if (/^(NWD|ATW|EAW|ATM)[- ]|CASH WDL|ATM WDL/i.test(note)) return 'Cash withdrawal'
-  } else if (/DISBURSE/i.test(note)) return 'Loan received'
+  } else {
+    if (/DISBURSE/i.test(note)) return 'Loan received'
+    // Salary paid by NEFT/RTGS from a company (not refunds, funds or interest)
+    if (/^(NEFT|RTGS)/i.test(note) && /\b(PRIVATE LIMITED|PVT|LIMITED|LTD)\b/i.test(note) &&
+      !/MUTUAL FUND|INSURANCE|REFUND|INTEREST|DIVIDEND|SECURITIES|BROKING/i.test(note)) return 'Salary'
+  }
   const w = words(note)
   for (const r of type === 'income' ? INCOME_RULES : EXPENSE_RULES) {
     if (r.words.some((k) => w.includes(` ${k} `))) return r.category
