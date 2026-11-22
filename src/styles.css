@@ -110,3 +110,6 @@ button { font: inherit; color: inherit; }
 .note.bad { background: var(--bad-soft); color: var(--neg); }
 .toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(150px + env(safe-area-inset-bottom)); background: var(--text); color: var(--bg); padding: 10px 16px; border-radius: 12px; font-size: .9rem; z-index: 30; max-width: calc(100% - 32px); box-shadow: 0 6px 16px #0003; }
 .toast.warn { background: var(--warn); color: #fff; } .toast.bad { background: var(--neg); color: #fff; }
+.import-sum { background: var(--bg); border-radius: 12px; padding: 10px 12px; }
+.names { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.text-input { flex: 1; min-width: 0; font: inherit; color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 9px 10px; }

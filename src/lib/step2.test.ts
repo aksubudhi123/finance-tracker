@@ -65,3 +65,42 @@ describe('budgets', () => {
     expect(guessCategory('salary advance repayment', 'expense')).toBe('Other')
   })
 })
+
+import { holderName } from './statement'
+import { payeeOf } from './categorize'
+import { summarise } from './summary'
+
+describe('real-world narrations', () => {
+  const own = { ownNames: ['RAVI KUMAR SHARMA'] }
+  it('finds the account holder in the header', () => {
+    expect(holderName([['HDFC BANK'], ['MR.     RAVI KUMAR SHARMA', '', 'Address']])).toBe('RAVI KUMAR SHARMA')
+  })
+  it('treats own-account moves as transfers, including names UPI cut short', () => {
+    expect(guessCategory('IMPS-6244-RAVI KUMAR SHARMA-BARB-XXXX4501-', 'expense', own)).toBe('Transfer')
+    expect(guessCategory('UPI-RAVI KUMAR SHARM-ravi@okaxis-BARB0VJBA-1-UPI', 'income', own)).toBe('Transfer')
+    expect(guessCategory('UPI-RAVI TEA STALL-x@ybl-1-UPI', 'expense', own)).toBe('Other')
+  })
+  it('recognises card bills, ATM cash, loan disbursals and lender debits', () => {
+    expect(guessCategory('IB BILLPAY DR-HDFCWI-552260XXXXXX6514', 'expense')).toBe('Credit card bill')
+    expect(guessCategory('NWD-541919XXXXXX4588-00046624-PUNE', 'expense')).toBe('Cash withdrawal')
+    expect(guessCategory('A2AINT01-C7308-BAJAJFIN DISBURSEMENT-575', 'income')).toBe('Loan received')
+    expect(guessCategory('UPI-BHFL-*****BDPG@HDFCBANK-HDFC0MERUPI-63-PAY', 'expense')).toBe('EMI & loans')
+  })
+  it('matches whole words only', () => {
+    expect(guessCategory('UPI-PARENTS GIFT-x@ybl', 'expense')).toBe('Other') // not "rent"
+    expect(guessCategory('UPI-GASTRO CLINIC-x@ybl', 'expense')).toBe('Health') // not "gas"
+  })
+  it('remembers a chosen category per payee', () => {
+    const note = 'UPI-SUNITA DEVI-98xx@ybl-SBIN001-1-PA'
+    expect(payeeOf(note)).toBe('sunita devi')
+    expect(guessCategory(note, 'expense', { rules: { 'expense:sunita devi': 'Groceries' } })).toBe('Groceries')
+    expect(payeeOf('NEFT CR-ICIC0000105-ACME PRIVATE LIMITED-RAVI')).toBe('acme private limited')
+  })
+  it('leaves transfers out of income and spending', () => {
+    const s = summarise('2026-11', [
+      { date: '2026-11-01', type: 'income', amount: 500, category: 'Transfer' },
+      { date: '2026-11-01', type: 'expense', amount: 200, category: 'Groceries' }
+    ], [], [])
+    expect([s.income, s.expense]).toEqual([0, 200])
+  })
+})

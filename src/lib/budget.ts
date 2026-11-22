@@ -29,7 +29,7 @@ export function crossingAlert(category: string, before: number, amount: number, 
 
 export function byCategory(txs: Transaction[], type: 'expense' | 'income' = 'expense') {
   const m = new Map<string, number>()
-  for (const t of txs) if (t.type === type) m.set(t.category, (m.get(t.category) ?? 0) + t.amount)
+  for (const t of txs) if (t.type === type && t.category !== 'Transfer') m.set(t.category, (m.get(t.category) ?? 0) + t.amount)
   return [...m.entries()].map(([category, amount]) => ({ category, amount })).sort((a, b) => b.amount - a.amount)
 }
 

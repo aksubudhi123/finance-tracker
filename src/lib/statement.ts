@@ -1,5 +1,5 @@
 import type { Transaction, TxType } from './db'
-import { guessCategory } from './categorize'
+import { guessCategory, type CategorizeContext } from './categorize'
 
 export interface ParsedRow extends Transaction {
   duplicate?: boolean
@@ -68,7 +68,18 @@ export function parseAmount(c: Cell): number {
   return isNaN(n) ? 0 : n
 }
 
-export function parseStatement(rows: Cell[][], existing: Transaction[] = []): ParsedRow[] {
+/** Account holder name from the statement header, e.g. "MR. RAVI KUMAR" -> "RAVI KUMAR". */
+export function holderName(rows: Cell[][]): string | null {
+  for (const row of rows.slice(0, 25)) {
+    for (const c of row) {
+      const m = String(c ?? '').match(/^\s*(?:MR|MRS|MS|MISS|SHRI|SMT|DR)\.?\s+([A-Za-z .]{4,60})$/i)
+      if (m) return m[1].replace(/\s+/g, ' ').trim()
+    }
+  }
+  return null
+}
+
+export function parseStatement(rows: Cell[][], existing: Transaction[] = [], ctx: CategorizeContext = {}): ParsedRow[] {
   const cols = findColumns(rows)
   if (!cols) throw new Error("Couldn't find the Date, Description and Amount columns in this file.")
   const seen = new Set(existing.map((t) => `${t.date}|${t.amount}|${t.type}`))
@@ -93,7 +104,7 @@ export function parseStatement(rows: Cell[][], existing: Transaction[] = []): Pa
     }
     const note = String(row[cols.desc] ?? '').trim().replace(/\s+/g, ' ')
     const key = `${date}|${amount}|${type}`
-    out.push({ date, type, amount, note, category: guessCategory(note, type), account: 'Bank', duplicate: seen.has(key) })
+    out.push({ date, type, amount, note, category: guessCategory(note, type, ctx), account: 'Bank', duplicate: seen.has(key) })
   }
   return out
 }

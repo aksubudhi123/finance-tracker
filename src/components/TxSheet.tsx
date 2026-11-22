@@ -15,7 +15,7 @@ export default function TxSheet({ tx, onClose }: { tx?: Transaction; onClose: ()
   const [category, setCategory] = useState(tx?.category ?? '')
   const [date, setDate] = useState(tx?.date ?? today())
   const [note, setNote] = useState(tx?.note ?? '')
-  const cats = useLiveQuery(() => db.categories.where('type').equals(type).toArray(), [type]) ?? []
+  const cats = useLiveQuery(() => db.categories.where('type').anyOf(type, 'both').toArray(), [type]) ?? []
   const value = parseFloat(amount)
   const valid = value > 0 && category && date
 

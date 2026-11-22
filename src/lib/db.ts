@@ -17,7 +17,7 @@ export interface Transaction {
 export interface Category {
   id?: number
   name: string
-  type: TxType
+  type: TxType | 'both'
   icon: string
 }
 
@@ -44,12 +44,25 @@ export interface LoanPayment {
   amount: number
 }
 
+/** Remembered category for a payee, key = "<type>:<payee>". */
+export interface Rule {
+  key: string
+  category: string
+}
+
+export interface Setting {
+  key: string
+  value: unknown
+}
+
 export class FinanceDB extends Dexie {
   transactions!: EntityTable<Transaction, 'id'>
   categories!: EntityTable<Category, 'id'>
   budgets!: EntityTable<Budget, 'id'>
   loans!: EntityTable<Loan, 'id'>
   loanPayments!: EntityTable<LoanPayment, 'id'>
+  rules!: EntityTable<Rule, 'key'>
+  settings!: EntityTable<Setting, 'key'>
 
   constructor() {
     super('finance-tracker')
@@ -59,6 +72,10 @@ export class FinanceDB extends Dexie {
       budgets: '++id, &category',
       loans: '++id, name',
       loanPayments: '++id, loanId, month, [loanId+month]'
+    })
+    this.version(2).stores({ rules: '&key', settings: '&key' }).upgrade(async (tx) => {
+      const cats = tx.table('categories')
+      for (const c of NEW_IN_V2) if (!(await cats.where('name').equals(c.name).count())) await cats.add(c)
     })
     this.on('populate', (tx) => {
       tx.table('categories').bulkAdd(DEFAULT_CATEGORIES)
@@ -79,12 +96,20 @@ export const DEFAULT_CATEGORIES: Category[] = [
   { name: 'Education', type: 'expense', icon: '📚' },
   { name: 'EMI & loans', type: 'expense', icon: '🏦' },
   { name: 'Entertainment', type: 'expense', icon: '🎬' },
-  { name: 'Other', type: 'expense', icon: '📦' }
+  { name: 'Investments', type: 'expense', icon: '📈' },
+  { name: 'Credit card bill', type: 'expense', icon: '💳' },
+  { name: 'Cash withdrawal', type: 'expense', icon: '🏧' },
+  { name: 'Loan received', type: 'income', icon: '🏦' },
+  { name: 'Other', type: 'expense', icon: '📦' },
+  { name: 'Transfer', type: 'both', icon: '🔁' }
 ]
+
+const NEW_IN_V2 = DEFAULT_CATEGORIES.filter((c) =>
+  ['Investments', 'Transfer', 'Credit card bill', 'Cash withdrawal', 'Loan received'].includes(c.name))
 
 export const db = new FinanceDB()
 
-const TABLES = ['transactions', 'categories', 'budgets', 'loans', 'loanPayments'] as const
+const TABLES = ['transactions', 'categories', 'budgets', 'loans', 'loanPayments', 'rules', 'settings'] as const
 
 export interface Backup {
   app: 'finance-tracker'
@@ -110,3 +135,12 @@ export async function importBackup(backup: unknown): Promise<void> {
     }
   })
 }
+
+export async function getSetting<T>(key: string, fallback: T): Promise<T> {
+  return ((await db.settings.get(key))?.value as T) ?? fallback
+}
+
+export const setSetting = (key: string, value: unknown) => db.settings.put({ key, value })
+
+/** Narrations of our own accounts are transfers, not income or spending. */
+export const counts = (t: { category: string }) => t.category !== 'Transfer'

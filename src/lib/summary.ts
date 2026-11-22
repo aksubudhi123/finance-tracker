@@ -1,4 +1,4 @@
-import type { Budget, Loan, Transaction } from './db'
+import { counts, type Budget, type Loan, type Transaction } from './db'
 
 export interface MonthSummary {
   income: number
@@ -11,7 +11,7 @@ export interface MonthSummary {
 }
 
 export function summarise(month: string, txs: Transaction[], budgets: Budget[], loans: Loan[]): MonthSummary {
-  const inMonth = txs.filter((t) => t.date.startsWith(month))
+  const inMonth = txs.filter((t) => t.date.startsWith(month) && counts(t))
   const income = inMonth.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0)
   const expense = inMonth.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
   const budgeted = new Set(budgets.map((b) => b.category))

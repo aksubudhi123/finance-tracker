@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
-import { exportBackup, importBackup } from '../lib/db'
+import { useLiveQuery } from 'dexie-react-hooks'
+import { db, exportBackup, importBackup, setSetting } from '../lib/db'
 
 export default function More() {
   const fileRef = useRef<HTMLInputElement>(null)
@@ -39,6 +40,8 @@ export default function More() {
         <p className="muted small">It then opens like a normal app and works without internet.</p>
       </section>
 
+      <OwnNames />
+
       <section className="card">
         <h2>Your data</h2>
         <p className="muted small">
@@ -55,5 +58,29 @@ export default function More() {
 
       <p className="muted small center">Finance Tracker v0.2</p>
     </>
+  )
+}
+
+function OwnNames() {
+  const names = useLiveQuery(async () => ((await db.settings.get('ownNames'))?.value as string[]) ?? []) ?? []
+  const [text, setText] = useState('')
+  const save = (list: string[]) => setSetting('ownNames', list)
+  return (
+    <section className="card">
+      <h2>My own accounts</h2>
+      <p className="muted small">
+        Money sent to or from these names is treated as a transfer between your own accounts, not income or spending.
+        Your name is added automatically when you import a statement.
+      </p>
+      <ul className="names">
+        {names.map((n) => (
+          <li key={n} className="chip">{n} <button className="link" aria-label={`Remove ${n}`} onClick={() => save(names.filter((x) => x !== n))}>✕</button></li>
+        ))}
+      </ul>
+      <div className="row">
+        <input className="text-input" placeholder="Name or UPI ID, e.g. ravi@okaxis" value={text} onChange={(e) => setText(e.target.value)} />
+        <button className="btn" disabled={text.trim().length < 4} onClick={() => { save([...names, text.trim()]); setText('') }}>Add</button>
+      </div>
+    </section>
   )
 }
