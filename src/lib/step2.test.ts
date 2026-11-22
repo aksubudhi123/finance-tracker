@@ -81,8 +81,8 @@ describe('real-world narrations', () => {
     expect(guessCategory('UPI-RAVI TEA STALL-x@ybl-1-UPI', 'expense', own)).toBe('Other')
   })
   it('recognises card bills, ATM cash, loan disbursals and lender debits', () => {
-    expect(guessCategory('IB BILLPAY DR-HDFCWI-552260XXXXXX6514', 'expense')).toBe('Credit card bill')
-    expect(guessCategory('NWD-541919XXXXXX4588-00046624-PUNE', 'expense')).toBe('Cash withdrawal')
+    expect(guessCategory('IB BILLPAY DR-HDFCWI-400000XXXXXX1111', 'expense')).toBe('Credit card bill')
+    expect(guessCategory('NWD-400000XXXXXX2222-00012345-PUNE', 'expense')).toBe('Cash withdrawal')
     expect(guessCategory('A2AINT01-C7308-BAJAJFIN DISBURSEMENT-575', 'income')).toBe('Loan received')
     expect(guessCategory('UPI-BHFL-*****BDPG@HDFCBANK-HDFC0MERUPI-63-PAY', 'expense')).toBe('EMI & loans')
   })
